@@ -20,6 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller()
 public class TarefasController {
 
+    @RequestMapping("/")
+    public String home() {
+        return "redirect:listaTarefas";
+    }
+
     @RequestMapping("olaMundoSpring")
     public String execute() {
         System.out.println("Execuntando a lógica com Spring MVC");
