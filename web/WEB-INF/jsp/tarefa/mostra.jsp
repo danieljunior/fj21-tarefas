@@ -8,8 +8,8 @@
 <!DOCTYPE html>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib tagdir="/WEB-INF/tags" prefix="dj" %>
-<script src="js/jquery-2.1.0.min.js"></script>
-<script src="js/jquery-ui.min.js"></script>
+<script src="resources/js/jquery-2.1.0.min.js"></script>
+<script src="resources/js/jquery-ui.min.js"></script>
 
 <html>
     <body>

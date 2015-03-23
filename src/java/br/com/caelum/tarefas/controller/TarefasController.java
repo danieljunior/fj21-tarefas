@@ -7,6 +7,8 @@ package br.com.caelum.tarefas.controller;
 
 import br.com.caelum.tarefas.dao.JdbcTarefaDao;
 import br.com.caelum.tarefas.modelo.Tarefa;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -72,5 +74,20 @@ public class TarefasController {
         JdbcTarefaDao dao = new JdbcTarefaDao();
         dao.altera(tarefa);
         return "redirect:listaTarefas";
+    }
+
+    @RequestMapping("finalizaTarefa")
+    public String finaliza(Long id, Model model) {
+        JdbcTarefaDao db = new JdbcTarefaDao();
+        db.finaliza(id);
+        model.addAttribute("tarefa", db.buscaPorId(id));
+        return "tarefa/finalizada";
+    }
+
+    @RequestMapping("excluirTarefa")
+    public void excluir(Long id, HttpServletResponse resp) {
+        JdbcTarefaDao db = new JdbcTarefaDao();
+        db.remove(db.buscaPorId(id));
+        resp.setStatus(200);
     }
 }

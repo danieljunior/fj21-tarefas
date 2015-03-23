@@ -9,11 +9,13 @@
     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
     http://www.springframework.org/schema/context 
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
-
+    <!--Diz onde estão localizados os codigos fontes-->
     <context:component-scan base-package="br.com.caelum.tarefas" />
+    <!-- ativa o roteamento pelas annotations nos controllers-->
     <mvc:annotation-driven />
-    <mvc:resources mapping="/js/**" location="/js/" />
-
+    <!--Fazer o controller não receber as requisições de conteudo estatico(css,js). Aqui eles estão dentro da pasta resources-->
+    <mvc:default-servlet-handler/>
+    <!--Utilizado para mapear a String que será retornada por um controlador em um JSP-->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/jsp/"/>
         <property name="suffix" value=".jsp"/>
