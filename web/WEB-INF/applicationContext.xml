@@ -20,6 +20,11 @@
         <property name="prefix" value="/WEB-INF/jsp/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
-    
+    <!--Registra o interceptador-->
+    <mvc:interceptors>
+        <bean 
+            class=
+    "br.com.caelum.tarefas.interceptor.AutorizadorInterceptor" />
+    </mvc:interceptors>
 
 </beans>
