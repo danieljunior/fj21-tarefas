@@ -6,6 +6,9 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <html>
+    <head>
+        <link type="text/css" href="resources/css/tarefas.css" rel="stylesheet" />
+    </head>
     <body>
         <h2>Página de Login das Tarefas</h2>
         <form action="efetuaLogin" method="post">

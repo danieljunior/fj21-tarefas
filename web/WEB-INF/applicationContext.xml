@@ -26,5 +26,12 @@
             class=
     "br.com.caelum.tarefas.interceptor.AutorizadorInterceptor" />
     </mvc:interceptors>
+    <!--Para mapear o dataSource que será usado como dependencia-->
+    <bean id="mysqlDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost/fj21"/>
+        <property name="username" value="root"/>
+        <property name="password" value="tzzk7662"/>
+    </bean>
 
 </beans>

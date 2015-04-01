@@ -10,146 +10,162 @@ import java.util.Calendar;
 import java.util.List;
 import br.com.caelum.tarefas.modelo.Tarefa;
 import br.com.caelum.tarefas.ConnectionFactory;
+import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
+//anotação que indica que essa classe pode ser usada como uma injeção de dependencia(BEAN do spring)
+@Repository
 public class JdbcTarefaDao {
-	private final Connection connection;
 
-	public JdbcTarefaDao() {
-		try {
-			this.connection = new ConnectionFactory().getConnection();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    private final Connection connection;
 
-	public void adiciona(Tarefa tarefa) {
-		String sql = "insert into tarefas (descricao, finalizado) values (?,?)";
-		PreparedStatement stmt;
-		try {
-			stmt = connection.prepareStatement(sql);
-			stmt.setString(1, tarefa.getDescricao());
-			stmt.setBoolean(2, tarefa.isFinalizado());
-			stmt.execute();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    //diz para o 
+//    public JdbcTarefaDao() {
+//        try {
+//            this.connection = new ConnectionFactory().getConnection();
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+// diz para o Spring que ele deve resolver essa dependencia
+    @Autowired
+    public JdbcTarefaDao(DataSource dataSource) {
+        try {
+            this.connection = dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public void remove(Tarefa tarefa) {
+    public void adiciona(Tarefa tarefa) {
+        String sql = "insert into tarefas (descricao, finalizado) values (?,?)";
+        PreparedStatement stmt;
+        try {
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, tarefa.getDescricao());
+            stmt.setBoolean(2, tarefa.isFinalizado());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		if (tarefa.getId() == null) {
-			throw new IllegalStateException("Id da tarefa não deve ser nula.");
-		}
+    public void remove(Tarefa tarefa) {
 
-		String sql = "delete from tarefas where id = ?";
-		PreparedStatement stmt;
-		try {
-			stmt = connection.prepareStatement(sql);
-			stmt.setLong(1, tarefa.getId());
-			stmt.execute();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        if (tarefa.getId() == null) {
+            throw new IllegalStateException("Id da tarefa não deve ser nula.");
+        }
 
-	public void altera(Tarefa tarefa) {
-		String sql = "update tarefas set descricao = ?, finalizado = ?, dataFinalizacao = ? where id = ?";
-		PreparedStatement stmt;
-		try {
-			stmt = connection.prepareStatement(sql);
-			stmt.setString(1, tarefa.getDescricao());
-			stmt.setBoolean(2, tarefa.isFinalizado());
-			stmt.setDate(3, tarefa.getDataFinalizacao() != null ? new Date(
-					tarefa.getDataFinalizacao().getTimeInMillis()) : null);
-			stmt.setLong(4, tarefa.getId());
-			stmt.execute();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        String sql = "delete from tarefas where id = ?";
+        PreparedStatement stmt;
+        try {
+            stmt = connection.prepareStatement(sql);
+            stmt.setLong(1, tarefa.getId());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public List<Tarefa> lista() {
-		try {
-			List<Tarefa> tarefas = new ArrayList<Tarefa>();
-			PreparedStatement stmt = this.connection
-					.prepareStatement("select * from tarefas");
+    public void altera(Tarefa tarefa) {
+        String sql = "update tarefas set descricao = ?, finalizado = ?, dataFinalizacao = ? where id = ?";
+        PreparedStatement stmt;
+        try {
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, tarefa.getDescricao());
+            stmt.setBoolean(2, tarefa.isFinalizado());
+            stmt.setDate(3, tarefa.getDataFinalizacao() != null ? new Date(
+                    tarefa.getDataFinalizacao().getTimeInMillis()) : null);
+            stmt.setLong(4, tarefa.getId());
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-			ResultSet rs = stmt.executeQuery();
+    public List<Tarefa> lista() {
+        try {
+            List<Tarefa> tarefas = new ArrayList<Tarefa>();
+            PreparedStatement stmt = this.connection
+                    .prepareStatement("select * from tarefas");
 
-			while (rs.next()) {
-				// adiciona a tarefa na lista
-				tarefas.add(populaTarefa(rs));
-			}
+            ResultSet rs = stmt.executeQuery();
 
-			rs.close();
-			stmt.close();
+            while (rs.next()) {
+                // adiciona a tarefa na lista
+                tarefas.add(populaTarefa(rs));
+            }
 
-			return tarefas;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            rs.close();
+            stmt.close();
 
-	public Tarefa buscaPorId(Long id) {
+            return tarefas;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		if (id == null) {
-			throw new IllegalStateException("Id da tarefa não deve ser nula.");
-		}
+    public Tarefa buscaPorId(Long id) {
 
-		try {
-			PreparedStatement stmt = this.connection
-					.prepareStatement("select * from tarefas where id = ?");
-			stmt.setLong(1, id);
+        if (id == null) {
+            throw new IllegalStateException("Id da tarefa não deve ser nula.");
+        }
 
-			ResultSet rs = stmt.executeQuery();
+        try {
+            PreparedStatement stmt = this.connection
+                    .prepareStatement("select * from tarefas where id = ?");
+            stmt.setLong(1, id);
 
-			if (rs.next()) {
-				return populaTarefa(rs);
-			}
+            ResultSet rs = stmt.executeQuery();
 
-			rs.close();
-			stmt.close();
+            if (rs.next()) {
+                return populaTarefa(rs);
+            }
 
-			return null;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            rs.close();
+            stmt.close();
 
-	public void finaliza(Long id) {
+            return null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		if (id == null) {
-			throw new IllegalStateException("Id da tarefa não deve ser nula.");
-		}
+    public void finaliza(Long id) {
 
-		String sql = "update tarefas set finalizado = ?, dataFinalizacao = ? where id = ?";
-		PreparedStatement stmt;
-		try {
-			stmt = connection.prepareStatement(sql);
-			stmt.setBoolean(1, true);
-			stmt.setDate(2, new Date(Calendar.getInstance().getTimeInMillis()));
-			stmt.setLong(3, id);
-			stmt.execute();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        if (id == null) {
+            throw new IllegalStateException("Id da tarefa não deve ser nula.");
+        }
 
-	private Tarefa populaTarefa(ResultSet rs) throws SQLException {
-		Tarefa tarefa = new Tarefa();
+        String sql = "update tarefas set finalizado = ?, dataFinalizacao = ? where id = ?";
+        PreparedStatement stmt;
+        try {
+            stmt = connection.prepareStatement(sql);
+            stmt.setBoolean(1, true);
+            stmt.setDate(2, new Date(Calendar.getInstance().getTimeInMillis()));
+            stmt.setLong(3, id);
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-		// popula o objeto tarefa
-		tarefa.setId(rs.getLong("id"));
-		tarefa.setDescricao(rs.getString("descricao"));
-		tarefa.setFinalizado(rs.getBoolean("finalizado"));
+    private Tarefa populaTarefa(ResultSet rs) throws SQLException {
+        Tarefa tarefa = new Tarefa();
 
-		// popula a data de finalizacao da tarefa, fazendo a conversao
-		Date data = rs.getDate("dataFinalizacao");
-		if (data != null) {
-			Calendar dataFinalizacao = Calendar.getInstance();
-			dataFinalizacao.setTime(data);
-			tarefa.setDataFinalizacao(dataFinalizacao);
-		}
-		return tarefa;
-	}
+        // popula o objeto tarefa
+        tarefa.setId(rs.getLong("id"));
+        tarefa.setDescricao(rs.getString("descricao"));
+        tarefa.setFinalizado(rs.getBoolean("finalizado"));
+
+        // popula a data de finalizacao da tarefa, fazendo a conversao
+        Date data = rs.getDate("dataFinalizacao");
+        if (data != null) {
+            Calendar dataFinalizacao = Calendar.getInstance();
+            dataFinalizacao.setTime(data);
+            tarefa.setDataFinalizacao(dataFinalizacao);
+        }
+        return tarefa;
+    }
 }
