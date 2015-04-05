@@ -5,9 +5,10 @@
  */
 package br.com.caelum.tarefas.controller;
 
-import br.com.caelum.tarefas.dao.JdbcTarefaDao;
+import br.com.caelum.tarefas.dao.TarefaDao;
 import br.com.caelum.tarefas.modelo.Tarefa;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,16 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author danieljr
  */
 @Controller()
+@Transactional
+//habilita o gerenciamento de transações pelo spring
 public class TarefasController {
 
-    private final JdbcTarefaDao dao;
+    @Autowired
+    TarefaDao dao;
 
     //diz para o spring injetar essa dependencia
-    @Autowired
-    public TarefasController(JdbcTarefaDao dao) {
-        this.dao = dao;
-    }
-
     @RequestMapping("/")
     public String home() {
         return "redirect:listaTarefas";
